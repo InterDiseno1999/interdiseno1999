@@ -141,7 +141,7 @@
                     <input type="hidden" name="main_image_cropped" id="mainImageCropped">
                 </div>
                 <div id="mainImagePreviewContainer" class="mt-6 text-center animate-fade-in">
-                    <img id="mainImagePreview" src="{{ asset('storage/' . $product->image) }}" class="mx-auto h-40 md:h-52 rounded-[2rem] shadow-xl border-4 border-white object-cover">
+                    <img id="mainImagePreview" src="{{ \Storage::disk('supabase')->url($product->image) }}" class="mx-auto h-40 md:h-52 rounded-[2rem] shadow-xl border-4 border-white object-cover">
                 </div>
             </div>
 
