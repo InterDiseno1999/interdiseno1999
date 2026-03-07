@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <!-- Slide 2: Texto Secundario -->
+            <!-- Slide 2 -->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_2.JPG') }}" alt="Slide 2" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <!-- Slide 3: Texto Secundario -->
+            <!-- Slide 3 -->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_3.png') }}" alt="Slide 3" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -43,7 +43,7 @@
                 </div>
             </div>
 
-            <!-- Slide 4: Texto Secundario -->
+            <!-- Slide 4 -->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_4.JPG') }}" alt="Slide 4" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <!-- Slide 5: Nueva Imagen con Texto Secundario -->
+            <!-- Slide 5 -->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_5.png') }}" alt="Slide 5" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -68,7 +68,7 @@
             </div>
         </div>
 
-        <!-- Controles: Flechas -->
+        <!-- Controles -->
         <button id="prevBtn" class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-inter-dark transition-all z-20 hidden md:flex">
             <i class="fas fa-chevron-left text-sm"></i>
         </button>
@@ -76,7 +76,7 @@
             <i class="fas fa-chevron-right text-sm"></i>
         </button>
 
-        <!-- Indicadores (Dots) -->
+        <!-- Indicadores -->
         <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20" id="carousel-dots">
             <button class="dot h-1.5 rounded-full transition-all duration-500 shadow-sm bg-white w-10" data-index="0"></button>
             <button class="dot h-1.5 rounded-full transition-all duration-500 shadow-sm bg-white/40 w-3" data-index="1"></button>
@@ -90,7 +90,7 @@
     <section class="container mx-auto px-4 py-20">
         <div class="flex flex-col md:flex-row gap-12 lg:gap-20 items-start">
             <div class="md:w-1/2 space-y-6">
-                <h2 class="text-3xl md:text-4xl font-bold border-b-2 border-gray-100 pb-3 tracking-tighter uppercase">Sobre Nosotros</h2>
+                <h2 class="text-3xl md:text-4xl font-bold border-b-2 border-black pb-3 tracking-tighter uppercase">Sobre Nosotros</h2>
                 <p class="text-gray-600 leading-relaxed text-sm md:text-base">
                     Somos una empresa textil con más de 25 años en el sector del interiorismo. Inspirados por la pasión en el diseño y fieles a nuestros valores comercializamos y desarrollamos <span class="font-bold text-inter-dark uppercase">Géneros diferenciados para tapizar y decorar</span>, a través de un equipo de trabajo de talento, motivados por la superación constante de nuestros objetivos. 
                 </p>
@@ -112,7 +112,7 @@
         </div>
     </section>
 
-    <!-- 3. PRODUCTOS DESTACADOS -->
+    <!-- 3. PRODUCTOS DESTACADOS (SOPORTE SUPABASE) -->
     <section class="container mx-auto px-4 py-24 border-t border-gray-50">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold border-b-2 border-gray-100 inline-block pb-2 tracking-tighter uppercase">Productos destacados</h2>
@@ -122,7 +122,8 @@
             @forelse($products as $product)
                 <div class="group cursor-pointer" onclick="window.location='{{ route('products.show', $product['slug'] ?? '#') }}'">
                     <div class="aspect-square bg-gray-100 rounded-[2.5rem] overflow-hidden relative shadow-sm border border-gray-100">
-                        <img src="{{ asset('storage/' . ($product['image'] ?? '')) }}" 
+                        {{-- Logica Supabase aplicada en el src --}}
+                        <img src="{{ \Storage::disk('supabase')->url($product['image'] ?? '') }}" 
                                 class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
                                 onerror="this.src='https://via.placeholder.com/600x600?text=InterDiseño'">
                         
@@ -139,7 +140,7 @@
                 </div>
             @empty
                 <div class="col-span-full text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-                    <p class="text-gray-400 font-bold uppercase tracking-widest italic">Novedades próximamente...</p>
+                    <p class="text-gray-400 font-bold uppercase tracking-widest italic">Explorando nuevas texturas...</p>
                 </div>
             @endforelse
         </div>
@@ -225,36 +226,40 @@
     <!-- 6. MÉTRICAS -->
     <section class="bg-inter-dark text-white py-24 overflow-hidden" id="metrics-section">
         <div class="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8 text-center">
+            <!-- Métrica 1 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="100">0</p>
                     <p class="text-[9px] text-inter-beige uppercase font-black tracking-[0.3em] mt-1">Diseños</p>
                 </div>
             </div>
+            <!-- Métrica 2 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain ">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="3000">0</p>
                     <p class="text-[9px] text-inter-beige uppercase font-black tracking-[0.3em] mt-1">Clientes</p>
                 </div>
             </div>
+            <!-- Métrica 3 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="5500">0</p>
                     <p class="text-[9px] text-inter-beige uppercase font-black tracking-[0.3em] mt-1">Stock (Mts)</p>
                 </div>
             </div>
+            <!-- Métrica 4 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="25">0</p>
@@ -267,8 +272,6 @@
     <!-- LÓGICA VANILLA JS -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- 1. CARRUSEL HERO ---
             const items = document.querySelectorAll('.carousel-item');
             const dots = document.querySelectorAll('.dot');
             const prevBtn = document.getElementById('prevBtn');
@@ -277,14 +280,8 @@
             let autoPlayInterval;
 
             const updateCarousel = (index) => {
-                items.forEach(item => {
-                    item.style.opacity = '0';
-                    item.style.zIndex = '0';
-                });
-                dots.forEach(dot => {
-                    dot.classList.remove('bg-white', 'w-10');
-                    dot.classList.add('bg-white/40', 'w-3');
-                });
+                items.forEach(item => { item.style.opacity = '0'; item.style.zIndex = '0'; });
+                dots.forEach(dot => { dot.classList.remove('bg-white', 'w-10'); dot.classList.add('bg-white/40', 'w-3'); });
 
                 items[index].style.opacity = '1';
                 items[index].style.zIndex = '10';
@@ -293,15 +290,8 @@
                 currentSlide = index;
             };
 
-            const nextSlide = () => {
-                let next = (currentSlide + 1) % items.length;
-                updateCarousel(next);
-            };
-
-            const prevSlide = () => {
-                let prev = (currentSlide - 1 + items.length) % items.length;
-                updateCarousel(prev);
-            };
+            const nextSlide = () => { let next = (currentSlide + 1) % items.length; updateCarousel(next); };
+            const prevSlide = () => { let prev = (currentSlide - 1 + items.length) % items.length; updateCarousel(prev); };
 
             if(nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); resetInterval(); });
             if(prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); resetInterval(); });
@@ -319,7 +309,7 @@
 
             startInterval();
 
-            // --- 2. CONTADORES MÉTRICAS ---
+            // Métricas
             const counters = document.querySelectorAll('.counter');
             const metricsSection = document.getElementById('metrics-section');
 

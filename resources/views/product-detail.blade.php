@@ -7,11 +7,12 @@
     <!-- Fila Principal: Imagen y Detalles -->
     <div class="flex flex-col lg:flex-row gap-16 items-start justify-center">
         
-        <!-- Columna Izquierda: Imagen -->
+        <!-- Columna Izquierda: Imagen (SOPORTE SUPABASE) -->
         <div class="lg:w-[42%] w-full space-y-8">
             <div class="bg-gray-50 rounded-[2rem] overflow-hidden aspect-square shadow-md border border-gray-100 group relative max-w-md mx-auto lg:mx-0 mt-2">
+                {{-- Imagen principal desde Supabase --}}
                 <img id="main-product-image" 
-                     src="{{ asset('storage/' . $product->image) }}" 
+                     src="{{ \Storage::disk('supabase')->url($product->image) }}" 
                      alt="{{ $product->name }}" 
                      class="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.02]">
             </div>
@@ -32,7 +33,8 @@
                         @forelse($product->variants->where('category', 'Base') as $variant)
                             <button type="button" 
                                     class="variant-option w-full text-left px-5 py-3.5 text-xs font-medium transition-all hover:bg-inter-dark hover:text-white border-b border-white/20 last:border-none"
-                                    data-image="{{ $variant->pivot->variant_image ? asset('storage/' . $variant->pivot->variant_image) : asset('storage/' . $product->image) }}"
+                                    {{-- Data attribute con URL de Supabase --}}
+                                    data-image="{{ $variant->pivot->variant_image ? \Storage::disk('supabase')->url($variant->pivot->variant_image) : \Storage::disk('supabase')->url($product->image) }}"
                                     data-name="{{ $variant->name }}"
                                     onclick="updateProductGallery(this, 'variant-option')">
                                 {{ $variant->name }}
@@ -60,7 +62,8 @@
                             @foreach($product->variants->where('category', 'Estampado') as $design)
                                 <button type="button" 
                                         class="design-option w-full text-left px-5 py-3.5 text-xs font-medium transition-all hover:bg-inter-dark hover:text-white border-b border-white/20 last:border-none"
-                                        data-image="{{ $design->pivot->variant_image ? asset('storage/' . $design->pivot->variant_image) : asset('storage/' . $product->image) }}"
+                                        {{-- Data attribute con URL de Supabase --}}
+                                        data-image="{{ $design->pivot->variant_image ? \Storage::disk('supabase')->url($design->pivot->variant_image) : \Storage::disk('supabase')->url($product->image) }}"
                                         data-name="{{ $design->name }}"
                                         onclick="updateProductGallery(this, 'design-option')">
                                     {{ $design->name }}
@@ -128,7 +131,6 @@
 
             <!-- Botones de Acción -->
             <div class="flex flex-col sm:flex-row gap-5 pt-4">
-                {{-- Botón de WhatsApp con ID para actualización dinámica --}}
                 <a id="whatsapp-link"
                    href="https://wa.me/5491131011299?text=Hola, consulto por disponibilidad de: {{ $product->name }}" 
                    target="_blank"
@@ -144,7 +146,7 @@
         </div>
     </div>
 
-    <!-- Sección: Recomendados -->
+    <!-- Sección: Recomendados (SOPORTE SUPABASE) -->
     <div class="mt-40">
         <div class="flex justify-between items-end mb-12">
             <div>
@@ -158,7 +160,8 @@
             @foreach($recommended as $item)
                 <div class="group cursor-pointer" onclick="window.location='{{ route('products.show', $item->slug) }}'">
                     <div class="relative aspect-square bg-gray-50 rounded-[2.5rem] overflow-hidden mb-6 shadow-sm border border-gray-100">
-                        <img src="{{ asset('storage/' . $item->image) }}" 
+                        {{-- Recomendados desde Supabase --}}
+                        <img src="{{ \Storage::disk('supabase')->url($item->image) }}" 
                              alt="{{ $item->name }}" 
                              class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0">
                         
@@ -183,10 +186,10 @@
 <script>
     const mainImg = document.getElementById('main-product-image');
     const whatsappLink = document.getElementById('whatsapp-link');
-    const originalSrc = "{{ asset('storage/' . $product->image) }}";
+    {{-- URL base para resetear galeria --}}
+    const originalSrc = "{{ \Storage::disk('supabase')->url($product->image) }}";
     const productName = "{{ $product->name }}";
     
-    // Variables de selección
     let selectedVariant = "";
     let selectedDesign = "";
 
@@ -213,16 +216,9 @@
 
     function updateWhatsAppLink() {
         let baseMsg = `Hola, consulto por disponibilidad de: ${productName}`;
-        
-        if (selectedVariant) {
-            baseMsg += ` - Color: ${selectedVariant}`;
-        }
-        
-        if (selectedDesign) {
-            baseMsg += ` - Diseño: ${selectedDesign}`;
-        }
+        if (selectedVariant) baseMsg += ` - Color: ${selectedVariant}`;
+        if (selectedDesign) baseMsg += ` - Diseño: ${selectedDesign}`;
 
-        // Codificamos el mensaje para la URL
         const encodedMsg = encodeURIComponent(baseMsg);
         whatsappLink.href = `https://wa.me/5491131011299?text=${encodedMsg}`;
     }
@@ -231,14 +227,9 @@
         const newSrc = element.getAttribute('data-image');
         const name = element.getAttribute('data-name');
         
-        // Actualizamos variables de estado según lo que se clickeó
-        if (className === 'variant-option') {
-            selectedVariant = name;
-        } else if (className === 'design-option') {
-            selectedDesign = name;
-        }
+        if (className === 'variant-option') selectedVariant = name;
+        else if (className === 'design-option') selectedDesign = name;
 
-        // Actualizamos el link de WhatsApp
         updateWhatsAppLink();
         
         mainImg.style.filter = 'blur(10px)';
@@ -258,7 +249,6 @@
     }
 
     function resetGallery() {
-        // Reset de variables
         selectedVariant = "";
         selectedDesign = "";
         updateWhatsAppLink();

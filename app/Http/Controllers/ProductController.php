@@ -14,13 +14,19 @@ use Illuminate\Support\Facades\Log;
 class ProductController extends Controller
 {
     /**
-     * Muestra el listado de productos con filtros funcionales.
+     * Definimos el nombre del disco configurado en filesystems.php
+     * Este disco debe estar vinculado a Supabase mediante el driver S3.
+     */
+    protected $disk = 'supabase';
+
+    /**
+     * Muestra el listado de productos con filtros funcionales en el panel admin.
      */
     public function index(Request $request)
     {
         $query = Product::with(['compositions', 'variants']);
 
-        // 1. Filtro por Stock (1 = Disponible, 0 = Sin Stock)
+        // 1. Filtro por Stock
         if ($request->filled('stock')) {
             $query->where('stock', $request->stock);
         }
@@ -32,11 +38,11 @@ class ProductController extends Controller
             });
         }
 
-        // 3. Orden por Fecha (Por defecto: más nuevos primero)
+        // 3. Orden por Fecha
         $sort = $request->get('sort', 'desc');
         $query->orderBy('created_at', $sort);
 
-        // Obtenemos los productos paginados manteniendo los filtros en los enlaces
+        // Paginación de 15 productos para el panel administrativo
         $products = $query->paginate(15)->appends($request->all());
 
         // Cargamos todas las composiciones para el selector de filtros
@@ -58,7 +64,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Procesa y guarda el producto con soporte para imágenes recortadas (Cropper.js).
+     * Procesa y guarda el producto con imágenes en Supabase.
      */
     public function store(Request $request)
     {
@@ -68,12 +74,12 @@ class ProductController extends Controller
             'width' => 'required|string|max:50',
             'compositions' => 'required|array|min:1',
             'compositions.*' => 'exists:compositions,id',
-            // La imagen principal es obligatoria, ya sea como archivo o como recorte Base64
+            // La imagen principal puede ser un archivo directo o el base64 del Cropper
             'main_image' => 'required_without:main_image_cropped|nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'main_image_cropped' => 'required_without:main_image|nullable|string',
         ], [
             'compositions.required' => 'Debes seleccionar al menos una composición.',
-            'main_image.required_without' => 'La imagen principal es obligatoria (debes seleccionarla y recortarla).'
+            'main_image.required_without' => 'La imagen principal es obligatoria.'
         ]);
 
         $mainPath = null;
@@ -81,11 +87,11 @@ class ProductController extends Controller
         try {
             return DB::transaction(function () use ($request, &$mainPath) {
                 
-                // 1. Procesar Imagen Principal (Prioridad al recorte Base64)
+                // 1. Procesar Imagen Principal (Prioridad al recorte Base64 en Supabase)
                 if ($request->filled('main_image_cropped')) {
                     $mainPath = $this->saveBase64Image($request->main_image_cropped, 'products/main');
                 } else {
-                    $mainPath = $request->file('main_image')->store('products/main', 'public');
+                    $mainPath = $request->file('main_image')->store('products/main', $this->disk);
                 }
 
                 // 2. Crear registro del Producto
@@ -102,15 +108,16 @@ class ProductController extends Controller
                 // 3. Vincular Multi-Composiciones
                 $product->compositions()->attach($request->compositions);
 
-                // 4. Procesar Variantes (Base y Diseño)
+                // 4. Procesar Variantes (Base y Diseño) con subida a Supabase
                 $this->processVariants($request, $product);
 
-                return redirect()->route('admin.products.index')->with('success', 'Producto creado exitosamente.');
+                return redirect()->route('admin.products.index')->with('success', 'Producto creado y almacenado en la nube correctamente.');
             });
 
         } catch (\Exception $e) {
-            if ($mainPath) Storage::disk('public')->delete($mainPath);
-            Log::error("Error en ProductController@store: " . $e->getMessage());
+            // Si algo falla, intentamos limpiar la imagen subida
+            if ($mainPath) Storage::disk($this->disk)->delete($mainPath);
+            Log::error("Error en ProductController@store (Supabase): " . $e->getMessage());
 
             return redirect()->back()
                 ->with('error', 'Error al guardar el producto: ' . $e->getMessage())
@@ -132,7 +139,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Actualiza el producto sincronizando composiciones y variantes con soporte Cropper.
+     * Actualiza el producto sincronizando archivos en Supabase.
      */
     public function update(Request $request, $id)
     {
@@ -147,13 +154,13 @@ class ProductController extends Controller
 
         try {
             return DB::transaction(function () use ($request, $product) {
-                // 1. Actualizar Imagen Principal (Si se envió una nueva recortada o archivo)
+                // 1. Actualizar Imagen Principal
                 if ($request->filled('main_image_cropped')) {
-                    if ($product->image) Storage::disk('public')->delete($product->image);
+                    if ($product->image) Storage::disk($this->disk)->delete($product->image);
                     $product->image = $this->saveBase64Image($request->main_image_cropped, 'products/main');
                 } elseif ($request->hasFile('main_image')) {
-                    if ($product->image) Storage::disk('public')->delete($product->image);
-                    $product->image = $request->file('main_image')->store('products/main', 'public');
+                    if ($product->image) Storage::disk($this->disk)->delete($product->image);
+                    $product->image = $request->file('main_image')->store('products/main', $this->disk);
                 }
 
                 // 2. Actualizar datos básicos
@@ -169,61 +176,64 @@ class ProductController extends Controller
                 // 3. Sincronizar Composiciones
                 $product->compositions()->sync($request->compositions);
 
-                // 4. Sincronizar Variantes (Manual para manejar recortes)
+                // 4. Sincronizar Variantes (Maneja borrado de archivos viejos en la nube)
                 $this->syncVariants($request, $product);
 
-                return redirect()->route('admin.products.index')->with('success', 'Producto actualizado correctamente.');
+                return redirect()->route('admin.products.index')->with('success', 'Producto actualizado en Supabase exitosamente.');
             });
         } catch (\Exception $e) {
-            Log::error("Error en ProductController@update: " . $e->getMessage());
+            Log::error("Error en ProductController@update (Supabase): " . $e->getMessage());
             return redirect()->back()->with('error', 'Error al actualizar: ' . $e->getMessage());
         }
     }
 
     /**
-     * Elimina el producto y limpia los archivos del storage.
+     * Elimina el producto y limpia los archivos de Supabase.
      */
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
         
+        // Eliminar imagen principal del storage remoto
         if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+            Storage::disk($this->disk)->delete($product->image);
         }
 
+        // Eliminar imágenes de variantes del storage remoto
         foreach ($product->variants as $variant) {
             if ($variant->pivot->variant_image) {
-                Storage::disk('public')->delete($variant->pivot->variant_image);
+                Storage::disk($this->disk)->delete($variant->pivot->variant_image);
             }
         }
 
         $product->delete();
-        return redirect()->route('admin.products.index')->with('success', 'Producto eliminado por completo.');
+        return redirect()->route('admin.products.index')->with('success', 'Producto y archivos eliminados de la nube.');
     }
 
     // --- MÉTODOS PRIVADOS DE APOYO ---
 
     /**
-     * Decodifica una cadena Base64 y la guarda como archivo físico.
+     * Decodifica una cadena Base64 del Cropper y la sube directamente a Supabase.
      */
     private function saveBase64Image($base64Data, $folder)
     {
         if (preg_match('/^data:image\/(\w+);base64,/', $base64Data, $type)) {
             $data = substr($base64Data, strpos($base64Data, ',') + 1);
-            $type = strtolower($type[1]); // jpg, png, webp, etc.
+            $type = strtolower($type[1]); // jpg, png, webp
             $data = base64_decode($data);
             
             $fileName = Str::random(40) . '.' . $type;
             $path = $folder . '/' . $fileName;
             
-            Storage::disk('public')->put($path, $data);
+            // Guardamos directamente en el disco de Supabase
+            Storage::disk($this->disk)->put($path, $data);
             return $path;
         }
         throw new \Exception("El formato de la imagen recortada no es válido.");
     }
 
     /**
-     * Procesa la inserción inicial de variantes (Base64 o File).
+     * Procesa la inserción inicial de variantes.
      */
     private function processVariants($request, $product)
     {
@@ -234,7 +244,7 @@ class ProductController extends Controller
                 if ($request->filled("variant_images_cropped.$vId")) {
                     $path = $this->saveBase64Image($request->variant_images_cropped[$vId], 'products/variants');
                 } elseif ($request->hasFile("variant_images.$vId")) {
-                    $path = $request->file("variant_images.$vId")->store('products/variants', 'public');
+                    $path = $request->file("variant_images.$vId")->store('products/variants', $this->disk);
                 }
                 $product->variants()->attach($vId, ['variant_image' => $path]);
             }
@@ -247,7 +257,7 @@ class ProductController extends Controller
                 if ($request->filled("design_variant_images_cropped.$dvId")) {
                     $path = $this->saveBase64Image($request->design_variant_images_cropped[$dvId], 'products/variants');
                 } elseif ($request->hasFile("design_variant_images.$dvId")) {
-                    $path = $request->file("design_variant_images.$dvId")->store('products/variants', 'public');
+                    $path = $request->file("design_variant_images.$dvId")->store('products/variants', $this->disk);
                 }
                 $product->variants()->attach($dvId, ['variant_image' => $path]);
             }
@@ -255,7 +265,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Sincroniza variantes en la actualización, permitiendo recortes nuevos.
+     * Sincroniza variantes en la actualización, gestionando archivos en la nube.
      */
     private function syncVariants($request, $product)
     {
@@ -268,7 +278,7 @@ class ProductController extends Controller
                 $path = $existing ? $existing->pivot->variant_image : null;
 
                 if ($request->filled("variant_images_cropped.$vId")) {
-                    if ($path) Storage::disk('public')->delete($path);
+                    if ($path) Storage::disk($this->disk)->delete($path);
                     $path = $this->saveBase64Image($request->variant_images_cropped[$vId], 'products/variants');
                 }
                 $variantSyncData[$vId] = ['variant_image' => $path];
@@ -282,7 +292,7 @@ class ProductController extends Controller
                 $path = $existing ? $existing->pivot->variant_image : null;
 
                 if ($request->filled("design_variant_images_cropped.$dvId")) {
-                    if ($path) Storage::disk('public')->delete($path);
+                    if ($path) Storage::disk($this->disk)->delete($path);
                     $path = $this->saveBase64Image($request->design_variant_images_cropped[$dvId], 'products/variants');
                 }
                 $variantSyncData[$dvId] = ['variant_image' => $path];

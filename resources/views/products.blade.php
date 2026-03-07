@@ -15,7 +15,6 @@
         <div class="max-w-4xl mx-auto mb-16 space-y-8">
             <!-- Barra de Búsqueda -->
             <form action="{{ route('products') }}" method="GET" class="relative group">
-                {{-- Mantenemos el filtro de composición si existe al buscar --}}
                 @if(request('composition'))
                     <input type="hidden" name="composition" value="{{ request('composition') }}">
                 @endif
@@ -27,7 +26,7 @@
                 </button>
             </form>
 
-            <!-- Filtros Rápidos (Fibras) -->
+            <!-- Filtros Rápidos -->
             <div class="flex flex-wrap justify-center gap-2 md:gap-3">
                 <a href="{{ route('products', request()->only('search')) }}" 
                    class="{{ !request('composition') ? 'bg-inter-dark text-white' : 'bg-white text-gray-400 border border-gray-100' }} px-6 md:px-8 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#333333] hover:text-white transition shadow-sm">
@@ -44,7 +43,6 @@
                 @endif
             </div>
 
-            {{-- Indicador de búsqueda activa --}}
             @if(request('search'))
                 <div class="text-center">
                     <p class="text-[10px] font-black uppercase text-gray-400 tracking-widest">
@@ -57,17 +55,17 @@
             @endif
         </div>
 
-        <!-- Grilla de Productos -->
+        <!-- Grilla de Productos (SOPORTE SUPABASE) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
             @forelse($products as $product)
                 <div class="group">
                     <div class="relative aspect-square bg-gray-100 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden mb-6 shadow-sm border border-gray-100">
-                        <!-- Imagen Principal -->
-                        <img src="{{ asset('storage/' . $product->image) }}" 
+                        {{-- Logica Supabase aplicada en el src --}}
+                        <img src="{{ \Storage::disk('supabase')->url($product->image) }}" 
                                 class="w-full h-full object-cover transition duration-700 group-hover:scale-110"
                                 onerror="this.src='https://via.placeholder.com/600x600?text=InterDiseño'">
                         
-                        <!-- Iconos Flotantes (Visibles en hover) -->
+                        <!-- Iconos Flotantes -->
                         <div class="absolute bottom-6 right-6 flex space-x-3">
                             <a href="https://wa.me/5491131011299?text=Hola, consulto por disponibilidad de: {{ $product->name }}" 
                                 target="_blank"
@@ -99,7 +97,6 @@
                     </div>
                 </div>
             @empty
-                <!-- Estado vacío -->
                 <div class="col-span-full py-32 text-center">
                     <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-200">
                         <i class="fas fa-search text-3xl"></i>
@@ -110,7 +107,7 @@
             @endforelse
         </div>
 
-        <!-- Paginación en Español (Adaptada) -->
+        <!-- Paginación -->
         <div class="mt-20 md:mt-24 px-2">
             {{ $products->links('partials.pagination-es') }}
         </div>
