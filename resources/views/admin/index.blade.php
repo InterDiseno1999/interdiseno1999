@@ -73,9 +73,10 @@
             @forelse($products ?? [] as $product)
                 <div class="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 border border-gray-50 hover:bg-gray-50/50 transition-all duration-300 rounded-2xl md:rounded-[2rem] group shadow-sm gap-4">
                     <div class="flex flex-col md:flex-row items-center md:items-center space-y-3 md:space-y-0 md:space-x-6 w-full">
-                        <!-- Miniatura -->
+                        <!-- Miniatura (SOPORTE SUPABASE) -->
                         <div class="w-24 h-24 md:w-20 md:h-20 rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex-shrink-0">
-                            <img src="{{ asset('storage/' . $product->image) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/150'">
+                            {{-- Cambiado para usar el disco de Supabase --}}
+                            <img src="{{ \Storage::disk('supabase')->url($product->image) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/150'">
                         </div>
                         <!-- Info -->
                         <div class="text-center md:text-left w-full overflow-hidden">
