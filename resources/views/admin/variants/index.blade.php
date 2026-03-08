@@ -54,7 +54,6 @@
 
     <!-- Listado de Variantes -->
     <div class="bg-[#C0B7B1]/40 rounded-3xl md:rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-8">
-        <!-- Vista Desktop: Tabla -->
         <table class="hidden md:table w-full text-left border-collapse">
             <thead>
                 <tr class="bg-[#333333] text-white uppercase text-[10px] tracking-widest font-bold">

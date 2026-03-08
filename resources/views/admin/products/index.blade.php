@@ -84,7 +84,6 @@
 
     <!-- Contenedor de Productos -->
     <div class="bg-[#C0B7B1]/40 rounded-3xl md:rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-8">
-        <!-- Vista Desktop: Tabla (SOPORTE SUPABASE) -->
         <table class="hidden lg:table w-full text-left border-collapse">
             <thead>
                 <tr class="bg-[#333333] text-white uppercase text-[10px] tracking-widest font-bold">
@@ -100,7 +99,6 @@
                     <td class="px-8 py-6">
                         <div class="flex items-center space-x-4">
                             <div class="w-16 h-16 rounded-xl overflow-hidden bg-gray-200 shadow-sm flex-shrink-0">
-                                {{-- Imagen desde Supabase --}}
                                 <img src="{{ \Storage::disk('supabase')->url($product->image) }}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
                             </div>
                             <div class="min-w-0">
@@ -143,13 +141,12 @@
             </tbody>
         </table>
 
-        <!-- Vista Mobile: Card Layout (SOPORTE SUPABASE) -->
+        <!-- Vista Mobile: Card Layout -->
         <div class="lg:hidden divide-y divide-black/10">
             @forelse($products as $product)
                 <div class="p-5 flex flex-col gap-4 hover:bg-white/20 transition-colors">
                     <div class="flex items-start gap-4">
                         <div class="w-20 h-20 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 shadow-inner">
-                            {{-- Imagen desde Supabase --}}
                             <img src="{{ \Storage::disk('supabase')->url($product->image) }}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
                         </div>
                         <div class="flex-1 min-w-0">
@@ -197,7 +194,7 @@
     {{ $products->links('partials.pagination-es') }}
     </div>
 
-    <!-- Modal de Eliminación (Adaptado a móviles) -->
+    <!-- Modal de Eliminación -->
     <div id="deleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
         <div class="relative bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl max-w-sm w-full p-8 md:p-10 text-center animate-fade-in mx-4">

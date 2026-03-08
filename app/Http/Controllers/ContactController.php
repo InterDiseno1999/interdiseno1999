@@ -14,7 +14,6 @@ class ContactController extends Controller
      */
     public function submit(Request $request)
     {
-        // 1. Validamos estrictamente los datos
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
             'email'   => 'required|email|max:255',
@@ -26,14 +25,11 @@ class ContactController extends Controller
         ]);
 
         try {
-            // 2. Enviamos el mail pasando el arreglo $validated (que nunca será null si pasó la validación)
-            // IMPORTANTE: Cambia 'tu-email@ejemplo.com' por tu dirección real de recepción.
             Mail::to('tomas.espiro@davinci.edu.ar')->send(new ContactMail($validated));
 
             return back()->with('success', '¡Gracias! Tu consulta ha sido enviada correctamente.');
 
         } catch (\Exception $e) {
-            // Registramos el error exacto en storage/logs/laravel.log para debug
             Log::error("Error crítico enviando correo: " . $e->getMessage());
 
             return back()

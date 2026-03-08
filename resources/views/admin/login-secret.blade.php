@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento de Sistema - InterDiseño</title>
-    <!-- Font Poppins -->
+    <link rel="stylesheet" href="{{asset('img/logo_interdiseno_nav.png')  }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
             font-family: 'Poppins', sans-serif; 
-            background-color: #C0B7B1; /* El beige de la marca */
+            background-color: #C0B7B1;
         }
         .bg-admin-dark { background-color: #3a3b3d; }
     </style>
@@ -47,7 +46,7 @@
             </button>
         </form>
 
-        <!-- Mensaje de Error (si existe en la sesión) -->
+        <!-- Mensaje de Error -->
         @if(session('error'))
             <p class="mt-4 text-center text-[10px] text-red-400 font-medium">Credenciales no válidas</p>
         @endif

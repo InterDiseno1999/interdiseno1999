@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* Configuración base para el Sticky Footer */
         body { 
             font-family: 'Poppins', sans-serif; 
             background-color: #f4f2f1; 
@@ -38,7 +37,6 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Header / Navbar -->
     <header class="bg-admin-beige py-3 px-8 shadow-sm sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center relative">
             <!-- Logo -->

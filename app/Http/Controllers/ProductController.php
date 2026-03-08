@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Log;
 class ProductController extends Controller
 {
     /**
-     * Definimos el nombre del disco configurado en filesystems.php
-     * Este disco debe estar vinculado a Supabase mediante el driver S3.
+     * Define el nombre del disco configurado en filesystems.php
      */
     protected $disk = 'supabase';
 
@@ -45,7 +44,7 @@ class ProductController extends Controller
         // Paginación de 15 productos para el panel administrativo
         $products = $query->paginate(15)->appends($request->all());
 
-        // Cargamos todas las composiciones para el selector de filtros
+        // Carga todas las composiciones para el selector de filtros
         $compositions = Composition::orderBy('name')->get();
 
         return view('admin.products.index', compact('products', 'compositions'));
@@ -74,7 +73,6 @@ class ProductController extends Controller
             'width' => 'required|string|max:50',
             'compositions' => 'required|array|min:1',
             'compositions.*' => 'exists:compositions,id',
-            // La imagen principal puede ser un archivo directo o el base64 del Cropper
             'main_image' => 'required_without:main_image_cropped|nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'main_image_cropped' => 'required_without:main_image|nullable|string',
         ], [
@@ -115,7 +113,6 @@ class ProductController extends Controller
             });
 
         } catch (\Exception $e) {
-            // Si algo falla, intentamos limpiar la imagen subida
             if ($mainPath) Storage::disk($this->disk)->delete($mainPath);
             Log::error("Error en ProductController@store (Supabase): " . $e->getMessage());
 

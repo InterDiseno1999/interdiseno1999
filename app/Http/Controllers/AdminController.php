@@ -17,7 +17,7 @@ class AdminController extends Controller
      */
     public function index()
     {
-        // Obtenemos los últimos 3 productos para la previsualización del dashboard
+        // Obtiene los últimos 3 productos para la previsualización del dashboard
         $products = Product::with('compositions')->latest()->take(3)->get();
         
         // Contadores para las tarjetas informativas
@@ -66,7 +66,7 @@ class AdminController extends Controller
      */
     public function videoEdit()
     {
-        // Verificamos si el video existe físicamente para informar a la vista
+        // Verifica si el video existe físicamente para informar a la vista
         $videoExists = File::exists(public_path('assets/video/home_background_video.mp4'));
         return view('admin.video.edit', compact('videoExists'));
     }
@@ -76,7 +76,7 @@ class AdminController extends Controller
      */
     public function videoUpdate(Request $request)
     {
-        // Aumentamos el límite de validación a 35MB para dar margen sobre el php.ini
+        // Limite de Archivos (500MB)
         $request->validate([
             'video_file' => 'required|mimes:mp4,mov,ogg,qt|max:512000', 
         ], [
@@ -90,27 +90,21 @@ class AdminController extends Controller
                 $file = $request->file('video_file');
                 $fileName = 'home_background_video.mp4';
                 
-                // Definimos la ruta en public/assets/video
                 $path = public_path('assets/video');
                 
-                // 1. Asegurar que la carpeta exista con permisos correctos
                 if (!File::isDirectory($path)) {
                     File::makeDirectory($path, 0755, true, true);
                 }
 
-                // 2. Si ya existe un video previo, lo borramos para liberar espacio
-                // y evitar problemas de sobrescritura
                 if (File::exists($path . '/' . $fileName)) {
                     File::delete($path . '/' . $fileName);
                 }
 
-                // 3. Movemos el nuevo archivo
                 $file->move($path, $fileName);
 
                 return redirect()->back()->with('success', 'Video actualizado correctamente. Los cambios ya son visibles en el Home.');
             }
         } catch (\Exception $e) {
-            // Registramos el error en el log por si falla algo del sistema de archivos
             Log::error("Error crítico subiendo video: " . $e->getMessage());
             
             return redirect()->back()->withErrors([

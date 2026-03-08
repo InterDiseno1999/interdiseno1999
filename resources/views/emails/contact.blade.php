@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Estilos base para máxima compatibilidad en clientes de correo */
         body { 
             margin: 0; 
             padding: 0; 
@@ -46,7 +45,6 @@
             text-transform: uppercase; 
             letter-spacing: 2px;
         }
-        /* Estilo del Logo en Texto para evitar enviar imágenes adjuntas */
         .logo-text { 
             margin: 0; 
             color: #ffffff; 
@@ -91,14 +89,12 @@
 <body>
     <center class="wrapper">
         <table class="main" width="100%">
-            <!-- Header con Logo Estilizado (No es una imagen) -->
             <tr>
                 <td class="header">
                     <h1 class="logo-text">InterDiseño</span></h1>
                 </td>
             </tr>
 
-            <!-- Body Content -->
             <tr>
                 <td class="content">
                     <p style="font-size: 18px; font-weight: 700; margin-bottom: 30px; letter-spacing: -0.5px;">Has recibido una nueva consulta:</p>
@@ -118,7 +114,6 @@
                 </td>
             </tr>
 
-            <!-- Footer -->
             <tr>
                 <td class="footer">
                     © InterDiseño SRL 1999<br>

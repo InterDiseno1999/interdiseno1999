@@ -37,10 +37,8 @@ class PageController extends Controller
         }
 
         // 3. Paginación de 18 productos (Novedades primero)
-        // Usamos appends para que los filtros persistan al cambiar de página
         $products = $query->latest()->paginate(18)->appends($request->all());
 
-        // Obtenemos todas las composiciones para los botones de filtro
         $compositions = Composition::orderBy('name')->get();
 
         return view('products', compact('products', 'compositions'));

@@ -4,14 +4,13 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto px-2 sm:px-4">
-    <!-- Título Principal -->
     <div class="text-center mb-8 md:mb-16">
         <h1 class="text-2xl md:text-4xl font-bold border-b-2 border-black inline-block pb-2 px-6 md:px-12 uppercase tracking-tighter">
             Administración del Sistema
         </h1>
     </div>
 
-    <!-- Cajas de Resumen (Grilla Adaptable) -->
+    <!-- Cajas de Resumen -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10 md:mb-16">
         <!-- Gestión de Composiciones -->
         <a href="{{ route('admin.compositions.index') }}" class="group bg-admin-beige p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 hover:shadow-xl hover:bg-admin-beige/20 transition-all duration-500">
@@ -73,9 +72,7 @@
             @forelse($products ?? [] as $product)
                 <div class="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 border border-gray-50 hover:bg-gray-50/50 transition-all duration-300 rounded-2xl md:rounded-[2rem] group shadow-sm gap-4">
                     <div class="flex flex-col md:flex-row items-center md:items-center space-y-3 md:space-y-0 md:space-x-6 w-full">
-                        <!-- Miniatura (SOPORTE SUPABASE) -->
                         <div class="w-24 h-24 md:w-20 md:h-20 rounded-2xl overflow-hidden shadow-inner bg-gray-100 flex-shrink-0">
-                            {{-- Cambiado para usar el disco de Supabase --}}
                             <img src="{{ \Storage::disk('supabase')->url($product->image) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/150'">
                         </div>
                         <!-- Info -->
@@ -124,7 +121,7 @@
     </div>
 </div>
 
-<!-- Modal de Eliminación (Adaptado a móviles) -->
+<!-- Modal de Eliminación -->
 <div id="deleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
     <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
     <div class="relative bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl max-w-sm w-full p-8 md:p-10 text-center animate-fade-in mx-4">
@@ -151,7 +148,7 @@
     function confirmDelete(url) {
         deleteForm.action = url;
         modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // Evitar scroll de fondo
+        document.body.style.overflow = 'hidden';
     }
 
     function closeDeleteModal() {
@@ -168,7 +165,6 @@
     .animate-fade-in { animation: fadeIn 0.3s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     
-    /* Mejoras de accesibilidad en touch */
     @media (max-width: 640px) {
         .group:active {
             background-color: rgba(0, 0, 0, 0.05);

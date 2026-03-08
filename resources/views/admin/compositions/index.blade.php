@@ -29,7 +29,6 @@
 
     <!-- Contenedor de Lista -->
     <div class="bg-[#C0B7B1]/40 rounded-3xl md:rounded-3xl overflow-hidden shadow-sm border border-gray-100">
-        <!-- Vista Desktop: Tabla -->
         <table class="hidden md:table w-full text-left border-collapse">
             <thead>
                 <tr class="bg-[#333333] text-white uppercase text-[10px] tracking-widest font-bold">
@@ -89,7 +88,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIRMACIÓN (Adaptado a móviles) -->
+    <!-- MODAL DE CONFIRMACIÓN -->
     <div id="deleteCompositionModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
         <div class="relative bg-white rounded-3xl md:rounded-[2.5rem] shadow-2xl max-w-sm w-full p-8 md:p-10 text-center animate-fade-in">

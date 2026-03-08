@@ -1,12 +1,11 @@
 @extends('layouts.admin')
 
 @section('content')
-<!-- Cropper.js CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 
 <div class="max-w-5xl mx-auto px-2 sm:px-4">
     
-    <!-- Título Principal Refinado -->
+    <!-- Título Principal -->
     <div class="text-center mb-8 md:mb-10">
         <h1 class="text-2xl md:text-4xl font-bold border-b-2 border-black inline-block pb-2 px-8 uppercase tracking-tighter text-gray-800">
             Nuevo Producto
@@ -210,7 +209,7 @@
     </div>
 </div>
 
-<!-- Cropper.js JS -->
+>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <script>

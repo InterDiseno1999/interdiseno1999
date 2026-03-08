@@ -6,11 +6,8 @@
 <div class="container mx-auto px-4 py-16">
     <!-- Fila Principal: Imagen y Detalles -->
     <div class="flex flex-col lg:flex-row gap-16 items-start justify-center">
-        
-        <!-- Columna Izquierda: Imagen (SOPORTE SUPABASE) -->
         <div class="lg:w-[42%] w-full space-y-8">
             <div class="bg-gray-50 rounded-[2rem] overflow-hidden aspect-square shadow-md border border-gray-100 group relative max-w-md mx-auto lg:mx-0 mt-2">
-                {{-- Imagen principal desde Supabase --}}
                 <img id="main-product-image" 
                      src="{{ \Storage::disk('supabase')->url($product->image) }}" 
                      alt="{{ $product->name }}" 
@@ -19,7 +16,6 @@
 
             <!-- Menús Desplegables -->
             <div class="flex flex-col sm:flex-row gap-6 max-w-md mx-auto lg:mx-0">
-                <!-- Desplegable de Variantes -->
                 <div class="flex-1 group">
                     <button type="button" 
                             onclick="toggleDropdown('variants-list', 'variants-chevron')"
@@ -62,7 +58,6 @@
                             @foreach($product->variants->where('category', 'Estampado') as $design)
                                 <button type="button" 
                                         class="design-option w-full text-left px-5 py-3.5 text-xs font-medium transition-all hover:bg-inter-dark hover:text-white border-b border-white/20 last:border-none"
-                                        {{-- Data attribute con URL de Supabase --}}
                                         data-image="{{ $design->pivot->variant_image ? \Storage::disk('supabase')->url($design->pivot->variant_image) : \Storage::disk('supabase')->url($product->image) }}"
                                         data-name="{{ $design->name }}"
                                         onclick="updateProductGallery(this, 'design-option')">
@@ -146,7 +141,7 @@
         </div>
     </div>
 
-    <!-- Sección: Recomendados (SOPORTE SUPABASE) -->
+    <!-- Sección: Recomendados-->
     <div class="mt-40">
         <div class="flex justify-between items-end mb-12">
             <div>
@@ -160,7 +155,6 @@
             @foreach($recommended as $item)
                 <div class="group cursor-pointer" onclick="window.location='{{ route('products.show', $item->slug) }}'">
                     <div class="relative aspect-square bg-gray-50 rounded-[2.5rem] overflow-hidden mb-6 shadow-sm border border-gray-100">
-                        {{-- Recomendados desde Supabase --}}
                         <img src="{{ \Storage::disk('supabase')->url($item->image) }}" 
                              alt="{{ $item->name }}" 
                              class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0">

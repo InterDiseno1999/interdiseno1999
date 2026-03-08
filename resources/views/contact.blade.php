@@ -68,7 +68,6 @@
             </div>
         </div>
 
-        <!-- RRSS Section Rediseñada (Más Estética) -->
         <div class="mt-24 md:mt-32 text-center">
             <h2 class="text-2xl md:text-3xl font-bold border-b-2 border-gray-100 inline-block pb-3 mb-16 tracking-tighter uppercase">Nuestras Redes</h2>
             

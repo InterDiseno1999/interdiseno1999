@@ -3,10 +3,9 @@
 @section('title', 'Inicio')
 
 @section('content')
-    <!-- 1. CARRUSEL HERO (VANILLA JS) -->
     <section class="relative overflow-hidden bg-gray-200" id="hero-carousel">
         <div class="relative h-[450px] md:h-[650px] w-full" id="carousel-inner">
-            <!-- Slide 1: Título Principal -->
+            <!-- Slide 1 -->
             <div class="carousel-item absolute inset-0 opacity-100 transition-opacity duration-1000 ease-in-out z-10">
                 <img src="{{ asset('img/home/carrusel_1.png') }}" alt="Slide 1" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/30 flex items-center justify-center text-center p-4">
@@ -122,7 +121,6 @@
             @forelse($products as $product)
                 <div class="group cursor-pointer" onclick="window.location='{{ route('products.show', $product['slug'] ?? '#') }}'">
                     <div class="aspect-square bg-gray-100 rounded-[2.5rem] overflow-hidden relative shadow-sm border border-gray-100">
-                        {{-- Logica Supabase aplicada en el src --}}
                         <img src="{{ \Storage::disk('supabase')->url($product['image'] ?? '') }}" 
                                 class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
                                 onerror="this.src='https://via.placeholder.com/600x600?text=InterDiseño'">
@@ -191,7 +189,7 @@
         </div>
     </section>
 
-    <!-- 5. SECCIÓN DE VIDEO DINÁMICA -->
+    <!-- 5. SECCIÓN DE VIDEO  -->
     <section class="py-12 md:py-20 bg-white">
         <div class="container mx-auto px-4">
             <div class="max-w-5xl mx-auto aspect-video bg-inter-dark relative overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white">
@@ -269,7 +267,6 @@
         </div>
     </section>
 
-    <!-- LÓGICA VANILLA JS -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const items = document.querySelectorAll('.carousel-item');
@@ -309,7 +306,6 @@
 
             startInterval();
 
-            // Métricas
             const counters = document.querySelectorAll('.counter');
             const metricsSection = document.getElementById('metrics-section');
 

@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto px-2 sm:px-4">
-    <!-- Título de la Sección Refinado -->
     <div class="text-center mb-8 md:mb-10">
         <h1 class="text-3xl md:text-4xl font-bold border-b-2 border-black inline-block pb-2 px-8 uppercase tracking-tighter text-gray-800">
             Gestión Multimedia
@@ -31,7 +30,6 @@
                 <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 ml-2">Video Actual en el Home</label>
                 
                 <div class="relative w-full aspect-video bg-[#333333] rounded-[2rem] overflow-hidden shadow-xl border-4 border-white/20">
-                    {{-- Usamos un parámetro ?v=time() para romper la caché del navegador --}}
                     @if(File::exists(public_path('assets/video/home_background_video.mp4')))
                         <video class="w-full h-full object-cover" autoplay muted loop playsinline key="{{ time() }}">
                             <source src="{{ asset('assets/video/home_background_video.mp4') }}?v={{ time() }}" type="video/mp4">

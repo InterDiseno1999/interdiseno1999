@@ -12,7 +12,7 @@ class Composition extends Model
     protected $fillable = ['name'];
 
     /**
-     * Relación con productos (muchos a muchos)
+     * Relación con productos
      */
     public function products()
     {

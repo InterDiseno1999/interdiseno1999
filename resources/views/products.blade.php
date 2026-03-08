@@ -4,7 +4,6 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-12 md:py-16">
-        <!-- Título Principal Responsivo -->
         <div class="text-center mb-10 md:mb-16">
             <h1 class="text-3xl md:text-4xl font-bold border-b-2 border-black inline-block pb-2 uppercase tracking-tighter text-gray-800">
                 Catálogo de Productos
@@ -55,12 +54,11 @@
             @endif
         </div>
 
-        <!-- Grilla de Productos (SOPORTE SUPABASE) -->
+        <!-- Grilla de Productos -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
             @forelse($products as $product)
                 <div class="group">
                     <div class="relative aspect-square bg-gray-100 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden mb-6 shadow-sm border border-gray-100">
-                        {{-- Logica Supabase aplicada en el src --}}
                         <img src="{{ \Storage::disk('supabase')->url($product->image) }}" 
                                 class="w-full h-full object-cover transition duration-700 group-hover:scale-110"
                                 onerror="this.src='https://via.placeholder.com/600x600?text=InterDiseño'">

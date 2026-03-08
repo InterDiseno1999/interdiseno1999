@@ -12,7 +12,6 @@ class CompositionController extends Controller
      */
     public function index()
     {
-        // CAMBIO: Se cambió 'name' por 'id' y orden descendente
         $compositions = Composition::orderBy('id', 'asc')->get();
         return view('admin.compositions.index', compact('compositions'));
     }

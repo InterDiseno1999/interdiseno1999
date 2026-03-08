@@ -12,8 +12,7 @@ class Variant extends Model
     protected $fillable = ['name', 'category'];
 
     /**
-     * Relación con productos (muchos a muchos).
-     * Nota: Asumimos que existirá una tabla pivote product_variant más adelante.
+     * Relación con productos.
      */
     public function products()
     {

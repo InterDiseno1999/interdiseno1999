@@ -1,6 +1,5 @@
 @if ($paginator->hasPages())
     <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
-        {{-- Vista Mobile: Solo botones Anterior/Siguiente --}}
         <div class="flex justify-between flex-1 sm:hidden">
             @if ($paginator->onFirstPage())
                 <span class="relative inline-flex items-center px-6 py-3 text-[10px] font-black uppercase tracking-widest text-gray-300 bg-white border border-gray-100 cursor-default leading-5 rounded-2xl shadow-sm">

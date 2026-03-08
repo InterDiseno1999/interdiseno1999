@@ -11,7 +11,6 @@ class Product extends Model
 
     /**
      * Campos que se pueden llenar masivamente.
-     * Incluimos el nuevo campo 'width' y los booleanos de control.
      */
     protected $fillable = [
         'name',
@@ -33,7 +32,7 @@ class Product extends Model
 
     /**
      * Relación muchos a muchos con Composiciones.
-     * Permite que una tela tenga varias fibras (ej. 70% Algodón, 30% Poliéster).
+     * Permite que una tela tenga varias fibras.
      */
     public function compositions()
     {
@@ -42,7 +41,6 @@ class Product extends Model
 
     /**
      * Relación muchos a muchos con Variantes.
-     * Incluimos 'variant_image' del pivote para gestionar las fotos por color/diseño.
      */
     public function variants()
     {

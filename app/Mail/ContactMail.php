@@ -13,10 +13,6 @@ class ContactMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Usamos "public array $data" directamente en el constructor (Property Promotion).
-     * Esto asegura que la propiedad sea accesible tanto en envelope() como en la vista.
-     */
     public function __construct(public array $data)
     {
         //
@@ -29,7 +25,6 @@ class ContactMail extends Mailable
     {
         return new Envelope(
             subject: 'Nueva consulta desde la Web - InterDiseño',
-            // Usamos ?? para dar un valor por defecto si las llaves no existen por algún motivo
             replyTo: [
                 new Address(
                     $this->data['email'] ?? config('mail.from.address'), 
@@ -45,7 +40,7 @@ class ContactMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.contact', // Asegúrate de que este archivo exista en resources/views/emails/contact.blade.php
+            view: 'emails.contact', 
         );
     }
 

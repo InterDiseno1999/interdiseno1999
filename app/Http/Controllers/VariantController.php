@@ -24,7 +24,7 @@ class VariantController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // CAMBIO: Ahora se ordena por ID descendente para ver lo más nuevo primero
+        // Ahora se ordena por ID descendente para ver lo más nuevo primero
         $variants = $query->orderBy('id', 'asc')->paginate(15)->appends($request->all());
 
         return view('admin.variants.index', compact('variants'));

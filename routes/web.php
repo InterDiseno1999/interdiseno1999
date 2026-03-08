@@ -41,7 +41,7 @@ Route::get('/portal-interno/salir', [AdminController::class, 'logout'])->name('a
 |--------------------------------------------------------------------------
 | Panel Administrativo (Protegido por Middleware)
 |--------------------------------------------------------------------------
-| Todas las rutas aquí dentro requieren que la sesión 'admin_access' sea true.
+|
 */
 
 Route::prefix('gestion-interna-interdiseno')->middleware(['admin_check'])->group(function () {
