@@ -68,16 +68,13 @@ class AdminController extends Controller
      */
     public function videoEdit()
     {
-        // Escaneamos el directorio para verificar existencia real
         $files = Storage::disk($this->disk)->files($this->videoDirectory);
         
-        $videoExists = false;
-        foreach ($files as $file) {
-            if (str_contains($file, $this->videoBaseName)) {
-                $videoExists = true;
-                break;
-            }
-        }
+        $currentVideo = collect($files)->first(function($file) {
+            return str_contains($file, $this->videoBaseName);
+        });
+
+        $videoExists = !is_null($currentVideo);
         
         return view('admin.video.edit', compact('videoExists'));
     }
@@ -87,13 +84,13 @@ class AdminController extends Controller
      */
     public function videoUpdate(Request $request)
     {
-        // Validaciones robustas incluyendo mimetypes de Apple
+        // Validaciones robustas incluyendo mimetypes de Apple y contenedores MP4
         $request->validate([
             'video_file' => [
                 'required',
                 'file',
                 'mimes:mp4,mov,qt', 
-                'mimetypes:video/mp4,video/quicktime',
+                'mimetypes:video/mp4,video/quicktime,video/x-m4v',
                 'max:512000' // 500MB
             ],
         ], [
@@ -106,10 +103,11 @@ class AdminController extends Controller
             if ($request->hasFile('video_file')) {
                 $file = $request->file('video_file');
                 $extension = strtolower($file->getClientOriginalExtension());
-                $fileName = $this->videoBaseName . '.' . $extension;
-                $mimeType = $file->getMimeType();
+                $finalExtension = ($extension === 'qt') ? 'mov' : $extension;
+                $fileName = $this->videoBaseName . '.' . $finalExtension;
                 
-                // 1. LIMPIEZA: Borramos cualquier video previo para no duplicar espacio (mp4 y mov)
+                $mimeType = $file->getMimeType();
+
                 $existingFiles = Storage::disk($this->disk)->files($this->videoDirectory);
                 foreach ($existingFiles as $existing) {
                     if (str_contains($existing, $this->videoBaseName)) {
@@ -117,27 +115,26 @@ class AdminController extends Controller
                     }
                 }
 
-                // 2. SUBIDA: Usamos opciones avanzadas para asegurar que Supabase entienda el archivo
-                // Especificar 'ContentType' es CLAVE para que los .mov funcionen en navegadores
                 Storage::disk($this->disk)->putFileAs(
                     $this->videoDirectory, 
                     $file, 
                     $fileName,
                     [
-                        'visibility'  => 'public',
-                        'ContentType' => $mimeType, 
+                        'visibility'   => 'public',
+                        'ContentType'  => $mimeType,
+                        'CacheControl' => 'max-age=31536000',
                     ]
                 );
 
-                return redirect()->back()->with('success', 'Video (' . strtoupper($extension) . ') actualizado y optimizado en la nube.');
+                return redirect()->back()->with('success', 'Video (' . strtoupper($finalExtension) . ') actualizado y vinculado correctamente.');
             }
         } catch (\Exception $e) {
             Log::error("Error crítico subiendo video: " . $e->getMessage());
             return redirect()->back()->withErrors([
-                'video_file' => 'Hubo un problema de conexión con el almacenamiento. Intenta de nuevo.'
+                'video_file' => 'Hubo un problema al guardar en la nube: ' . $e->getMessage()
             ]);
         }
 
-        return redirect()->back()->withErrors(['video_file' => 'No se pudo procesar el archivo.']);
+        return redirect()->back()->withErrors(['video_file' => 'No se pudo procesar el archivo seleccionado.']);
     }
 }
