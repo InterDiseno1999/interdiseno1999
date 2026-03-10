@@ -3,6 +3,7 @@
 @section('title', 'Inicio')
 
 @section('content')
+    <!-- 1. CARRUSEL HERO (VANILLA JS) -->
     <section class="relative overflow-hidden bg-gray-200" id="hero-carousel">
         <div class="relative h-[450px] md:h-[650px] w-full" id="carousel-inner">
             <!-- Slide 1: Título Principal -->
@@ -189,22 +190,27 @@
         </div>
     </section>
 
-    <!-- 5. SECCIÓN DE VIDEO (OPTIMIZADA: REPRODUCCIÓN AL CLIC) -->
+    <!-- 5. SECCIÓN DE VIDEO (OPTIMIZADA: SOPORTE MOV Y SONIDO ACTIVADO) -->
     <section class="py-12 md:py-20 bg-white">
         <div class="container mx-auto px-4">
             <div class="max-w-5xl mx-auto aspect-video bg-inter-dark relative overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white group cursor-pointer" id="mainVideoContainer">
                 
                 @php
-                    $videoPath = 'assets/video/home_background_video.mp4';
-                    $videoExists = \Storage::disk('supabase')->exists($videoPath);
+                    $videoDirectory = 'assets/video';
+                    $baseName = 'home_background_video';
+                    $allFiles = \Storage::disk('supabase')->files($videoDirectory);
+                    // Buscamos el archivo que coincida con el nombre base sin importar la extensión
+                    $currentVideoPath = collect($allFiles)->first(fn($f) => str_contains($f, $baseName));
+                    $isVideoMov = $currentVideoPath ? (Str::afterLast($currentVideoPath, '.') === 'mov') : false;
                 @endphp
 
-                @if($videoExists)
+                @if($currentVideoPath)
+                    {{-- Hemos eliminado 'muted' para habilitar el sonido al hacer clic --}}
                     <video id="homeMainVideo" class="absolute inset-0 w-full h-full object-cover" loop playsinline>
-                        <source src="{{ \Storage::disk('supabase')->url($videoPath) }}?v={{ time() }}" type="video/mp4">
+                        <source src="{{ \Storage::disk('supabase')->url($currentVideoPath) }}?v={{ time() }}" 
+                                type="video/{{ $isVideoMov ? 'quicktime' : 'mp4' }}">
                     </video>
                     
-                    {{-- Overlay de reproducción para evitar ralentizar la carga inicial --}}
                     <div id="mainVideoOverlay" class="absolute inset-0 bg-black/30 flex flex-col items-center justify-center z-10 transition-all duration-700">
                         <div class="w-20 h-20 md:w-24 md:h-24 border-2 border-white rounded-full flex items-center justify-center bg-white/10 backdrop-blur-md transition-transform group-hover:scale-110 shadow-2xl">
                             <i id="mainPlayIcon" class="fas fa-play text-white text-3xl ml-1"></i>
@@ -212,15 +218,15 @@
                         <div class="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end transition-opacity" id="mainVideoLabels">
                             <div class="text-white">
                                 <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-60 mb-1">Producción Propia</p>
-                                <h3 class="text-lg md:text-2xl font-bold tracking-tighter">Calidad en cada metro</h3>
+                                <h3 class="text-lg md:text-2xl font-bold tracking-tighter">Calidad con sonido</h3>
                             </div>
-                            <p class="text-[9px] font-black text-white/40 uppercase tracking-widest hidden md:block">Clic para reproducir proceso</p>
+                            <p class="text-[9px] font-black text-white/40 uppercase tracking-widest hidden md:block">Clic para ver y escuchar</p>
                         </div>
                     </div>
                 @else
                     <div class="absolute inset-0 bg-[#333] flex flex-col items-center justify-center text-white/30 p-10 text-center">
-                        <i class="fas fa-play-circle text-6xl mb-4 opacity-20"></i>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em]">Proceso Textil InterDiseño</p>
+                        <i class="fas fa-video-slash text-6xl mb-4 opacity-20"></i>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em]">No hay video cargado</p>
                     </div>
                 @endif
             </div>
@@ -232,7 +238,7 @@
         <div class="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8 text-center">
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain">
+                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="100">0</p>
@@ -241,7 +247,7 @@
             </div>
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain">
+                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="3000">0</p>
@@ -250,7 +256,7 @@
             </div>
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain">
+                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="5500">0</p>
@@ -259,7 +265,7 @@
             </div>
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain">
+                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="25">0</p>
@@ -310,7 +316,7 @@
             const resetInterval = () => { clearInterval(autoPlayInterval); startInterval(); };
             startInterval();
 
-            // --- 2. LÓGICA DE REPRODUCCIÓN DE VIDEO ---
+            // --- 2. LÓGICA DE REPRODUCCIÓN DE VIDEO (Con Sonido) ---
             const container = document.getElementById('mainVideoContainer');
             const video = document.getElementById('homeMainVideo');
             const overlay = document.getElementById('mainVideoOverlay');
