@@ -30,15 +30,20 @@
                 <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 ml-2">Video Actual en el Home</label>
                 
                 <div class="relative w-full aspect-video bg-[#333333] rounded-[2rem] overflow-hidden shadow-xl border-4 border-white/20">
-                    @if(File::exists(public_path('assets/video/home_background_video.mp4')))
+                    @php
+                        $videoPath = 'assets/video/home_background_video.mp4';
+                        $videoExists = \Storage::disk('supabase')->exists($videoPath);
+                    @endphp
+
+                    @if($videoExists)
                         <video class="w-full h-full object-cover" autoplay muted loop playsinline key="{{ time() }}">
-                            <source src="{{ asset('assets/video/home_background_video.mp4') }}?v={{ time() }}" type="video/mp4">
+                            <source src="{{ \Storage::disk('supabase')->url($videoPath) }}?v={{ time() }}" type="video/mp4">
                             Tu navegador no soporta videos.
                         </video>
                     @else
                         <div class="w-full h-full flex flex-col items-center justify-center text-white/20">
                             <i class="fas fa-video-slash text-5xl mb-4"></i>
-                            <p class="text-[10px] font-bold uppercase tracking-widest">No hay video cargado</p>
+                            <p class="text-[10px] font-bold uppercase tracking-widest">No hay video cargado en la nube</p>
                         </div>
                     @endif
                 </div>
@@ -56,9 +61,8 @@
                     <span class="px-6 py-3 sm:py-0 text-gray-400 text-[11px] italic truncate w-full text-center sm:text-left" x-text="fileName"></span>
                 </div>
                 <div class="flex flex-col items-left gap-2 pl-2">
-                    
                     <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest"><i class="fas fa-info-circle text-gray-400 text-[10px] mr-1 "></i>Recomendado: Video horizontal (1920x1080).</p>
-                    <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest"><i class="fas fa-info-circle text-gray-400 text-[10px] mr-1 "></i>Tamaño máximo de video: 500MB</p>
+                    <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest"><i class="fas fa-info-circle text-gray-400 text-[10px] mr-1 "></i>Tamaño máximo de video: 500MB (Se subirá a Supabase)</p>
                 </div>
             </div>
 

@@ -18,7 +18,7 @@
                 </div>
             </div>
 
-            <!-- Slide 2 -->
+            <!-- Slide 2-->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_2.JPG') }}" alt="Slide 2" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -67,7 +67,7 @@
             </div>
         </div>
 
-        <!-- Controles -->
+        <!-- Controles: Flechas -->
         <button id="prevBtn" class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-inter-dark transition-all z-20 hidden md:flex">
             <i class="fas fa-chevron-left text-sm"></i>
         </button>
@@ -75,7 +75,7 @@
             <i class="fas fa-chevron-right text-sm"></i>
         </button>
 
-        <!-- Indicadores -->
+        <!-- Indicadores (Dots) -->
         <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20" id="carousel-dots">
             <button class="dot h-1.5 rounded-full transition-all duration-500 shadow-sm bg-white w-10" data-index="0"></button>
             <button class="dot h-1.5 rounded-full transition-all duration-500 shadow-sm bg-white/40 w-3" data-index="1"></button>
@@ -111,7 +111,7 @@
         </div>
     </section>
 
-    <!-- 3. PRODUCTOS DESTACADOS (SOPORTE SUPABASE) -->
+    <!-- 3. PRODUCTOS DESTACADOS -->
     <section class="container mx-auto px-4 py-24 border-t border-gray-50">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold border-b-2 border-gray-100 inline-block pb-2 tracking-tighter uppercase">Productos destacados</h2>
@@ -138,7 +138,7 @@
                 </div>
             @empty
                 <div class="col-span-full text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-                    <p class="text-gray-400 font-bold uppercase tracking-widest italic">Explorando nuevas texturas...</p>
+                    <p class="text-gray-400 font-bold uppercase tracking-widest italic">Novedades próximamente...</p>
                 </div>
             @endforelse
         </div>
@@ -189,19 +189,19 @@
         </div>
     </section>
 
-    <!-- 5. SECCIÓN DE VIDEO  -->
+    <!-- 5. SECCIÓN DE VIDEO -->
     <section class="py-12 md:py-20 bg-white">
         <div class="container mx-auto px-4">
             <div class="max-w-5xl mx-auto aspect-video bg-inter-dark relative overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white">
                 
                 @php
                     $videoPath = 'assets/video/home_background_video.mp4';
-                    $videoExists = file_exists(public_path($videoPath));
+                    $videoExists = \Storage::disk('supabase')->exists($videoPath);
                 @endphp
 
                 @if($videoExists)
                     <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline>
-                        <source src="{{ asset($videoPath) }}?v={{ time() }}" type="video/mp4">
+                        <source src="{{ \Storage::disk('supabase')->url($videoPath) }}?v={{ time() }}" type="video/mp4">
                     </video>
                     <div class="absolute inset-0 bg-black/10 z-10"></div>
                 @else
@@ -267,6 +267,7 @@
         </div>
     </section>
 
+    <!-- LÓGICA VANILLA JS -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const items = document.querySelectorAll('.carousel-item');
@@ -306,6 +307,7 @@
 
             startInterval();
 
+            // --- CONTADORES MÉTRICAS ---
             const counters = document.querySelectorAll('.counter');
             const metricsSection = document.getElementById('metrics-section');
 

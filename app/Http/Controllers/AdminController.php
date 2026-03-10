@@ -6,21 +6,23 @@ use App\Models\Product;
 use App\Models\Composition;
 use App\Models\Variant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage; // Cambiado de File a Storage
 use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
     /**
+     * Definimos el disco de Supabase configurado previamente.
+     */
+    protected $disk = 'supabase';
+
+    /**
      * Dashboard Principal: Administración del Sistema
-     * Muestra las métricas globales y los últimos productos cargados.
      */
     public function index()
     {
-        // Obtiene los últimos 3 productos para la previsualización del dashboard
         $products = Product::with('compositions')->latest()->take(3)->get();
         
-        // Contadores para las tarjetas informativas
         $productsCount = Product::count();
         $compositionsCount = Composition::count();
         $variantsCount = Variant::count();
@@ -62,21 +64,23 @@ class AdminController extends Controller
     }
 
     /**
-     * Vista de Edición de Video (Sección Multimedia)
+     * Vista de Edición de Video (SOPORTE SUPABASE)
      */
     public function videoEdit()
     {
-        // Verifica si el video existe físicamente para informar a la vista
-        $videoExists = File::exists(public_path('assets/video/home_background_video.mp4'));
+        // Verificamos si el video existe en el storage de Supabase
+        $videoPath = 'assets/video/home_background_video.mp4';
+        $videoExists = Storage::disk($this->disk)->exists($videoPath);
+        
         return view('admin.video.edit', compact('videoExists'));
     }
 
     /**
-     * Procesa la carga y reemplazo del video del Home
+     * Procesa la carga y reemplazo del video en Supabase
      */
     public function videoUpdate(Request $request)
     {
-        // Limite de Archivos (500MB)
+        // Límite de 500MB
         $request->validate([
             'video_file' => 'required|mimes:mp4,mov,ogg,qt|max:512000', 
         ], [
@@ -88,27 +92,24 @@ class AdminController extends Controller
         try {
             if ($request->hasFile('video_file')) {
                 $file = $request->file('video_file');
-                $fileName = 'home_background_video.mp4';
+                $videoPath = 'assets/video/home_background_video.mp4';
                 
-                $path = public_path('assets/video');
-                
-                if (!File::isDirectory($path)) {
-                    File::makeDirectory($path, 0755, true, true);
-                }
+                // 1. Subir directamente a Supabase
+                // putFileAs maneja el streaming del archivo, ideal para archivos grandes de hasta 500MB
+                Storage::disk($this->disk)->putFileAs(
+                    'assets/video', 
+                    $file, 
+                    'home_background_video.mp4',
+                    'public'
+                );
 
-                if (File::exists($path . '/' . $fileName)) {
-                    File::delete($path . '/' . $fileName);
-                }
-
-                $file->move($path, $fileName);
-
-                return redirect()->back()->with('success', 'Video actualizado correctamente. Los cambios ya son visibles en el Home.');
+                return redirect()->back()->with('success', 'Video actualizado correctamente.');
             }
         } catch (\Exception $e) {
             Log::error("Error crítico subiendo video: " . $e->getMessage());
             
             return redirect()->back()->withErrors([
-                'video_file' => 'Hubo un error al guardar el archivo en el servidor. Revisa los permisos de carpeta.'
+                'video_file' => 'Hubo un error al subir el archivo a la nube. Verifica la conexión con Supabase.'
             ]);
         }
 
