@@ -64,11 +64,11 @@ class AdminController extends Controller
     }
 
     /**
-     * Vista de Edición: Busca cualquier video (mp4 o mov) en la carpeta.
+     * Vista de Edición: Busca cualquier video (mp4 o mov) en la carpeta de la nube.
      */
     public function videoEdit()
     {
-        // Buscamos cualquier archivo que empiece con nuestro nombre base en Supabase
+        // Escaneamos el directorio para verificar existencia real
         $files = Storage::disk($this->disk)->files($this->videoDirectory);
         
         $videoExists = false;
@@ -83,33 +83,33 @@ class AdminController extends Controller
     }
 
     /**
-     * Procesa la carga aceptando MP4 y MOV para compatibilidad con Mac.
+     * Procesa la carga aceptando MP4 y MOV con configuración técnica para Supabase.
      */
     public function videoUpdate(Request $request)
     {
-        // Añadimos mimetypes para mayor seguridad con archivos Apple (QuickTime)
+        // Validaciones robustas incluyendo mimetypes de Apple
         $request->validate([
             'video_file' => [
                 'required',
                 'file',
-                'mimes:mp4,mov,qt', // qt = QuickTime
+                'mimes:mp4,mov,qt', 
                 'mimetypes:video/mp4,video/quicktime',
                 'max:512000' // 500MB
             ],
         ], [
-            'video_file.required' => 'Debes seleccionar un archivo.',
-            'video_file.mimes' => 'El formato debe ser MP4 o MOV (Mac).',
-            'video_file.mimetypes' => 'El tipo de video no es compatible.',
-            'video_file.max' => 'El archivo supera el límite de 500MB.'
+            'video_file.required' => 'Es necesario seleccionar un archivo.',
+            'video_file.mimes' => 'Formato no soportado (usa MP4 o MOV).',
+            'video_file.max' => 'El video es demasiado pesado (máx 500MB).'
         ]);
 
         try {
             if ($request->hasFile('video_file')) {
                 $file = $request->file('video_file');
-                $extension = $file->getClientOriginalExtension();
+                $extension = strtolower($file->getClientOriginalExtension());
                 $fileName = $this->videoBaseName . '.' . $extension;
+                $mimeType = $file->getMimeType();
                 
-                // 1. Limpieza: Borramos archivos de video viejos (sean mp4 o mov)
+                // 1. LIMPIEZA: Borramos cualquier video previo para no duplicar espacio (mp4 y mov)
                 $existingFiles = Storage::disk($this->disk)->files($this->videoDirectory);
                 foreach ($existingFiles as $existing) {
                     if (str_contains($existing, $this->videoBaseName)) {
@@ -117,20 +117,24 @@ class AdminController extends Controller
                     }
                 }
 
-                // 2. Subida del nuevo archivo a Supabase
+                // 2. SUBIDA: Usamos opciones avanzadas para asegurar que Supabase entienda el archivo
+                // Especificar 'ContentType' es CLAVE para que los .mov funcionen en navegadores
                 Storage::disk($this->disk)->putFileAs(
                     $this->videoDirectory, 
                     $file, 
                     $fileName,
-                    'public'
+                    [
+                        'visibility'  => 'public',
+                        'ContentType' => $mimeType, 
+                    ]
                 );
 
-                return redirect()->back()->with('success', 'Video (' . strtoupper($extension) . ') actualizado correctamente.');
+                return redirect()->back()->with('success', 'Video (' . strtoupper($extension) . ') actualizado y optimizado en la nube.');
             }
         } catch (\Exception $e) {
-            Log::error("Error subiendo video a Supabase: " . $e->getMessage());
+            Log::error("Error crítico subiendo video: " . $e->getMessage());
             return redirect()->back()->withErrors([
-                'video_file' => 'Error de conexión con la nube. Intenta de nuevo.'
+                'video_file' => 'Hubo un problema de conexión con el almacenamiento. Intenta de nuevo.'
             ]);
         }
 
