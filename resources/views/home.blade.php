@@ -200,7 +200,7 @@
                 @endphp
 
                 @if($videoExists)
-                    <video id="homeMainVideo" class="absolute inset-0 w-full h-full object-cover" muted loop playsinline>
+                    <video id="homeMainVideo" class="absolute inset-0 w-full h-full object-cover" loop playsinline>
                         <source src="{{ \Storage::disk('supabase')->url($videoPath) }}?v={{ time() }}" type="video/mp4">
                     </video>
                     

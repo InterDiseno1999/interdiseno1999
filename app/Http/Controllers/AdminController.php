@@ -6,23 +6,29 @@ use App\Models\Product;
 use App\Models\Composition;
 use App\Models\Variant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Cambiado de File a Storage
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
     /**
-     * Definimos el disco de Supabase configurado previamente.
+     * Disco de Supabase definido en la configuración de archivos.
      */
     protected $disk = 'supabase';
 
     /**
-     * Dashboard Principal: Administración del Sistema
+     * Directorio donde se guardan los videos.
      */
+    protected $videoDirectory = 'assets/video';
+
+    /**
+     * Nombre base del archivo de video para mantener consistencia.
+     */
+    protected $videoBaseName = 'home_background_video';
+
     public function index()
     {
         $products = Product::with('compositions')->latest()->take(3)->get();
-        
         $productsCount = Product::count();
         $compositionsCount = Composition::count();
         $variantsCount = Variant::count();
@@ -35,9 +41,6 @@ class AdminController extends Controller
         ));
     }
 
-    /**
-     * Lógica de Autenticación para el Portal Secreto
-     */
     public function authenticate(Request $request)
     {
         $password = $request->input('password');
@@ -54,9 +57,6 @@ class AdminController extends Controller
         return redirect()->back()->with('error', 'Credenciales no válidas.');
     }
 
-    /**
-     * Cierre de sesión administrativo
-     */
     public function logout()
     {
         session()->forget(['admin_access', 'admin_ip']);
@@ -64,55 +64,76 @@ class AdminController extends Controller
     }
 
     /**
-     * Vista de Edición de Video (SOPORTE SUPABASE)
+     * Vista de Edición: Busca cualquier video (mp4 o mov) en la carpeta.
      */
     public function videoEdit()
     {
-        // Verificamos si el video existe en el storage de Supabase
-        $videoPath = 'assets/video/home_background_video.mp4';
-        $videoExists = Storage::disk($this->disk)->exists($videoPath);
+        // Buscamos cualquier archivo que empiece con nuestro nombre base en Supabase
+        $files = Storage::disk($this->disk)->files($this->videoDirectory);
+        
+        $videoExists = false;
+        foreach ($files as $file) {
+            if (str_contains($file, $this->videoBaseName)) {
+                $videoExists = true;
+                break;
+            }
+        }
         
         return view('admin.video.edit', compact('videoExists'));
     }
 
     /**
-     * Procesa la carga y reemplazo del video en Supabase
+     * Procesa la carga aceptando MP4 y MOV para compatibilidad con Mac.
      */
     public function videoUpdate(Request $request)
     {
-        // Límite de 500MB
+        // Añadimos mimetypes para mayor seguridad con archivos Apple (QuickTime)
         $request->validate([
-            'video_file' => 'required|mimes:mp4,mov,ogg,qt|max:512000', 
+            'video_file' => [
+                'required',
+                'file',
+                'mimes:mp4,mov,qt', // qt = QuickTime
+                'mimetypes:video/mp4,video/quicktime',
+                'max:512000' // 500MB
+            ],
         ], [
-            'video_file.required' => 'Es necesario seleccionar un archivo de video.',
-            'video_file.mimes' => 'El formato debe ser MP4, MOV u OGG.',
-            'video_file.max' => 'El archivo no debe superar los 500MB.'
+            'video_file.required' => 'Debes seleccionar un archivo.',
+            'video_file.mimes' => 'El formato debe ser MP4 o MOV (Mac).',
+            'video_file.mimetypes' => 'El tipo de video no es compatible.',
+            'video_file.max' => 'El archivo supera el límite de 500MB.'
         ]);
 
         try {
             if ($request->hasFile('video_file')) {
                 $file = $request->file('video_file');
-                $videoPath = 'assets/video/home_background_video.mp4';
+                $extension = $file->getClientOriginalExtension();
+                $fileName = $this->videoBaseName . '.' . $extension;
                 
-                // 1. Subir directamente a Supabase
-                // putFileAs maneja el streaming del archivo, ideal para archivos grandes de hasta 500MB
+                // 1. Limpieza: Borramos archivos de video viejos (sean mp4 o mov)
+                $existingFiles = Storage::disk($this->disk)->files($this->videoDirectory);
+                foreach ($existingFiles as $existing) {
+                    if (str_contains($existing, $this->videoBaseName)) {
+                        Storage::disk($this->disk)->delete($existing);
+                    }
+                }
+
+                // 2. Subida del nuevo archivo a Supabase
                 Storage::disk($this->disk)->putFileAs(
-                    'assets/video', 
+                    $this->videoDirectory, 
                     $file, 
-                    'home_background_video.mp4',
+                    $fileName,
                     'public'
                 );
 
-                return redirect()->back()->with('success', 'Video actualizado correctamente.');
+                return redirect()->back()->with('success', 'Video (' . strtoupper($extension) . ') actualizado correctamente.');
             }
         } catch (\Exception $e) {
-            Log::error("Error crítico subiendo video: " . $e->getMessage());
-            
+            Log::error("Error subiendo video a Supabase: " . $e->getMessage());
             return redirect()->back()->withErrors([
-                'video_file' => 'Hubo un error al subir el archivo a la nube. Verifica la conexión con Supabase.'
+                'video_file' => 'Error de conexión con la nube. Intenta de nuevo.'
             ]);
         }
 
-        return redirect()->back()->withErrors(['video_file' => 'No se pudo procesar el archivo seleccionado.']);
+        return redirect()->back()->withErrors(['video_file' => 'No se pudo procesar el archivo.']);
     }
 }
