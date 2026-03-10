@@ -3,9 +3,10 @@
 @section('title', 'Inicio')
 
 @section('content')
+    <!-- 1. CARRUSEL HERO (VANILLA JS) -->
     <section class="relative overflow-hidden bg-gray-200" id="hero-carousel">
         <div class="relative h-[450px] md:h-[650px] w-full" id="carousel-inner">
-            <!-- Slide 1 -->
+            <!-- Slide 1: Título Principal -->
             <div class="carousel-item absolute inset-0 opacity-100 transition-opacity duration-1000 ease-in-out z-10">
                 <img src="{{ asset('img/home/carrusel_1.png') }}" alt="Slide 1" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/30 flex items-center justify-center text-center p-4">
@@ -18,7 +19,7 @@
                 </div>
             </div>
 
-            <!-- Slide 2-->
+            <!-- Slide 2: Texto Secundario -->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_2.JPG') }}" alt="Slide 2" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -30,7 +31,7 @@
                 </div>
             </div>
 
-            <!-- Slide 3 -->
+            <!-- Slide 3: Texto Secundario -->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_3.png') }}" alt="Slide 3" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -42,7 +43,7 @@
                 </div>
             </div>
 
-            <!-- Slide 4 -->
+            <!-- Slide 4: Texto Secundario -->
             <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out">
                 <img src="{{ asset('img/home/carrusel_4.JPG') }}" alt="Slide 4" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
@@ -111,7 +112,7 @@
         </div>
     </section>
 
-    <!-- 3. PRODUCTOS DESTACADOS -->
+    <!-- 3. PRODUCTOS DESTACADOS (SOPORTE SUPABASE) -->
     <section class="container mx-auto px-4 py-24 border-t border-gray-50">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold border-b-2 border-gray-100 inline-block pb-2 tracking-tighter uppercase">Productos destacados</h2>
@@ -138,7 +139,7 @@
                 </div>
             @empty
                 <div class="col-span-full text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-                    <p class="text-gray-400 font-bold uppercase tracking-widest italic">Novedades próximamente...</p>
+                    <p class="text-gray-400 font-bold uppercase tracking-widest italic">Explorando nuevas texturas...</p>
                 </div>
             @endforelse
         </div>
@@ -189,10 +190,10 @@
         </div>
     </section>
 
-    <!-- 5. SECCIÓN DE VIDEO -->
+    <!-- 5. SECCIÓN DE VIDEO (OPTIMIZADA: REPRODUCCIÓN AL CLIC) -->
     <section class="py-12 md:py-20 bg-white">
         <div class="container mx-auto px-4">
-            <div class="max-w-5xl mx-auto aspect-video bg-inter-dark relative overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white">
+            <div class="max-w-5xl mx-auto aspect-video bg-inter-dark relative overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white group cursor-pointer" id="mainVideoContainer">
                 
                 @php
                     $videoPath = 'assets/video/home_background_video.mp4';
@@ -200,23 +201,29 @@
                 @endphp
 
                 @if($videoExists)
-                    <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline>
+                    <video id="homeMainVideo" class="absolute inset-0 w-full h-full object-cover" muted loop playsinline>
                         <source src="{{ \Storage::disk('supabase')->url($videoPath) }}?v={{ time() }}" type="video/mp4">
                     </video>
-                    <div class="absolute inset-0 bg-black/10 z-10"></div>
+                    
+                    {{-- Overlay de reproducción para evitar ralentizar la carga inicial --}}
+                    <div id="mainVideoOverlay" class="absolute inset-0 bg-black/30 flex flex-col items-center justify-center z-10 transition-all duration-700">
+                        <div class="w-20 h-20 md:w-24 md:h-24 border-2 border-white rounded-full flex items-center justify-center bg-white/10 backdrop-blur-md transition-transform group-hover:scale-110 shadow-2xl">
+                            <i id="mainPlayIcon" class="fas fa-play text-white text-3xl ml-1"></i>
+                        </div>
+                        <div class="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end transition-opacity" id="mainVideoLabels">
+                            <div class="text-white">
+                                <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-60 mb-1">Producción Propia</p>
+                                <h3 class="text-lg md:text-2xl font-bold tracking-tighter">Calidad en cada metro</h3>
+                            </div>
+                            <p class="text-[9px] font-black text-white/40 uppercase tracking-widest hidden md:block">Clic para reproducir proceso</p>
+                        </div>
+                    </div>
                 @else
                     <div class="absolute inset-0 bg-[#333] flex flex-col items-center justify-center text-white/30 p-10 text-center">
                         <i class="fas fa-play-circle text-6xl mb-4 opacity-20"></i>
                         <p class="text-[10px] font-black uppercase tracking-[0.3em]">Proceso Textil InterDiseño</p>
                     </div>
                 @endif
-
-                <div class="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end">
-                    <div class="text-white">
-                        <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-60 mb-1">Producción Propia</p>
-                        <h3 class="text-lg md:text-2xl font-bold tracking-tighter">Calidad en cada metro</h3>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -224,40 +231,36 @@
     <!-- 6. MÉTRICAS -->
     <section class="bg-inter-dark text-white py-24 overflow-hidden" id="metrics-section">
         <div class="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8 text-center">
-            <!-- Métrica 1 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain">
+                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="100">0</p>
                     <p class="text-[9px] text-inter-beige uppercase font-black tracking-[0.3em] mt-1">Diseños</p>
                 </div>
             </div>
-            <!-- Métrica 2 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain ">
+                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="3000">0</p>
                     <p class="text-[9px] text-inter-beige uppercase font-black tracking-[0.3em] mt-1">Clientes</p>
                 </div>
             </div>
-            <!-- Métrica 3 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain">
+                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="5500">0</p>
                     <p class="text-[9px] text-inter-beige uppercase font-black tracking-[0.3em] mt-1">Stock (Mts)</p>
                 </div>
             </div>
-            <!-- Métrica 4 -->
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain">
+                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain filter invert opacity-80">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="25">0</p>
@@ -270,6 +273,8 @@
     <!-- LÓGICA VANILLA JS -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. CARRUSEL HERO ---
             const items = document.querySelectorAll('.carousel-item');
             const dots = document.querySelectorAll('.dot');
             const prevBtn = document.getElementById('prevBtn');
@@ -304,10 +309,29 @@
 
             const startInterval = () => { autoPlayInterval = setInterval(nextSlide, 7000); };
             const resetInterval = () => { clearInterval(autoPlayInterval); startInterval(); };
-
             startInterval();
 
-            // --- CONTADORES MÉTRICAS ---
+            // --- 2. LÓGICA DE REPRODUCCIÓN DE VIDEO ---
+            const container = document.getElementById('mainVideoContainer');
+            const video = document.getElementById('homeMainVideo');
+            const overlay = document.getElementById('mainVideoOverlay');
+            const labels = document.getElementById('mainVideoLabels');
+
+            if (container && video) {
+                container.addEventListener('click', () => {
+                    if (video.paused) {
+                        video.play();
+                        overlay.classList.add('opacity-0', 'pointer-events-none');
+                        labels.classList.add('opacity-0');
+                    } else {
+                        video.pause();
+                        overlay.classList.remove('opacity-0', 'pointer-events-none');
+                        labels.classList.remove('opacity-0');
+                    }
+                });
+            }
+
+            // --- 3. CONTADORES MÉTRICAS ---
             const counters = document.querySelectorAll('.counter');
             const metricsSection = document.getElementById('metrics-section');
 
