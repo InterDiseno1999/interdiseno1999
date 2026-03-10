@@ -3,7 +3,6 @@
 @section('title', 'Inicio')
 
 @section('content')
-    <!-- 1. CARRUSEL HERO (VANILLA JS) -->
     <section class="relative overflow-hidden bg-gray-200" id="hero-carousel">
         <div class="relative h-[450px] md:h-[650px] w-full" id="carousel-inner">
             <!-- Slide 1: Título Principal -->
@@ -233,7 +232,7 @@
         <div class="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8 text-center">
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_diseno.png') }}" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="100">0</p>
@@ -242,7 +241,7 @@
             </div>
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_clientes.png') }}" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="3000">0</p>
@@ -251,7 +250,7 @@
             </div>
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_stock.png') }}" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="5500">0</p>
@@ -260,7 +259,7 @@
             </div>
             <div class="flex flex-col items-center space-y-5">
                 <div class="w-14 h-14">
-                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain filter invert opacity-80">
+                    <img src="{{ asset('img/icons/icono_anos.png') }}" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <p class="text-4xl font-bold counter tracking-tighter" data-target="25">0</p>
